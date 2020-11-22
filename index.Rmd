@@ -54,6 +54,7 @@ All the variables in this dataset will be useful for this project, especially th
 
 ## IV: Exploratory Data Analysis
 
+<center>
 ```{r, echo=F, message=F, warning=F}
 playlist1 <- read_csv("~/github/dsclub-spotify-recommender/data/Spotify Playlist 1 - My Spotify Playlist-2.csv")
 
@@ -71,6 +72,7 @@ ggplot(data = no_songs, aes(x = genre, y= Num_of_songs), las=2) +
        title = 'Total Number of Songs in Each Genre in Playlist 1',
        caption = "Based on Tiffany's Playlist 1")
 ```
+</center>
 
 This chart displays the number of songs within each genre of the first playlist.  The first thing that I noticed when quickly glancing over this chart is one of the genres is listed as "NA" which I didn't originally notice when looking at the raw dataset.  The only reason I can think of for this labeling is that the program that converts all your playlist into a dataframe could not identify the genre for this one particular song, which happens to be "All in Time."
 
@@ -78,6 +80,7 @@ In addition, it is clear that the genre with the most songs in this playlist is 
 
 *****
 
+<center>
 ```{r, echo=F, message=F, warning=F}
 playlist2 = playlist2 %>% 
   rename(
@@ -98,6 +101,7 @@ ggplot(data = no_songs2, aes(x = genre, y= Num_of_songs), las=2) +
        title = 'Total Number of Songs in Each Genre in Playlist 2',
        caption = "Based on Tiffany's Playlist 2")
 ```
+</center>
 
 The above chart shows the number of songs within each genre of the second playlist, the playlist that we are ordering based on the first playlist.  In comparison to the first playlist, there is not much difference in terms of the number of songs in the playlist as the first one has 55 songs while the second has 67 songs.  However, there are a lot more genres in this second playlist as this playlist has 30 genres while the first has 18 genres.  This shows that the second there is a wider variety of music in the second playlist.
 
