@@ -1,0 +1,137 @@
+---
+title: "Spotify Recommender: Ordering Playlists"
+author: "Joshua Harasaki, Tiffany Yin, Joanne Kim, Tyler Chia"
+date: November 20, 2020
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+---
+
+```{r, echo=F, message=F, warning=F}
+library(tidyverse)
+library(sf)
+library(readr)
+library(USAboundaries)
+library(USAboundariesData)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(scales)
+```
+
+## I: Abstract
+Have you ever finished listening to a playlist on Spotify and had completely different, random, and unrelated songs begin playing in succession?  If not, have you ever finished listening to a playlist on Spotify and wonder what songs are similar to that playlist that you just finished?  Oftentimes, we find ourselves in a certain mood after listening to a specific type of music.  For example, after listening to a pop playlist, we may be in a good mood or feeling somewhat energetic.  For that reason, we would not want to start listening to slower paced music such as classical, shortly after finishing the pop playlist.  Our group exists to solve this problem by finding a way to order other playlists based on similarity to the first playlist so that we can be in one continuous state of mind.
+
+*****
+
+## II: Introduction
+Once again, through this project, our group would like to create somewhat of a recommender system that orders a second playlist based off of similarity to a first playlist.  We plan to go about doing this by first taking data from two playlists that one of our group members has on Spotify.  Then, we will do some introductory data analysis, to determine if the playlists have any similarities before ordering them.  We will then begin the process of trying to order a playlist in terms of similarity to the first.  One method that we will attempt is to average numerical variables from the songs first playlist as a way to categorize the first playlist as one "type" of music.  Next, we will find the error between the numerical values of songs in the second playlist and the average values of the first.  This will allow us to see which songs are similar to the first playlist in terms of those variables.  One big deciding factor for us is to choose which variables to use as we do not want to be too broad, but at the same time, we want to include all the necessary variables in order that we can determine what consititues similar or not.
+
+*****
+
+## III: Data
+The datasets that we will be using for this project are two of Tiffany Yin's Spotify playlists.  We were able to obtain the data from a website known as Organizeyourmusic which is linked [here](http://organizeyourmusic.playlistmachinery.com/index.html#).  This website was created by Paul Lamere who build music recommenders at Spotify itself.  His twitter is linked [here](https://twitter.com/plamere). This specifc website was created on August 6, 2016 during The Science of Music Hackathon in NYC.  The website runs in conjunction with Spotify in order to give the user data on their music tastes and playlists.  After signing into your Spotify account on the website the user is able to get information on all their playlists.  Therefore for this project, we are using two of Tiffany's playlists that we titled playlist1 and playlist2 for simplicity.  The first dataset has 55 observations while the second has 67.  In addition, both datasets have 13 variables:
+
+- Title (title): the song name
+- Artist (artist): The music artist that the song belongs to, excluding features
+- Genre (genre): The genre of music that the song falls under
+- Beats Per Minute (bpm): The tempo of the song
+- Energy (enrgy): The energy of the song. The higher the value, the more energetic the song is
+- Danceability (dance): The higher the value, the more energetic the song is
+- Loudness (dB): The higher the value, the louder the song
+- Liveness (live): The higher the value, the more likely the song is a live recording
+- Valence (val): The higher the value, the more positive mood is for the song
+- Duration (dur): The length of the song
+- Acousticness (acous): The higher the value, the more acoustic the song is
+- Speechiness (spch): The higher the value, the more spoken word the song contains
+- Popularity (pop): The higher the value, the more popular the song is
+
+A lot of these variables seem awfully objective and we are not completely sure how these are all measured, but the creator is a credible source so we are using his playlist program.
+All the variables in this dataset will be useful for this project, especially the numerical ones where we can do most of our calculations to determine if a song is similar to the other playlist or not.  These numerical variables include BPM, energy, danceability, loudness, liveness, valence, duration, acousticness, speechiness, and popularity.  
+
+*****
+
+## IV: Exploratory Data Analysis
+
+```{r, echo=F, message=F, warning=F}
+playlist1 <- read_csv("~/github/dsclub-spotify-recommender/data/Spotify Playlist 1 - My Spotify Playlist-2.csv")
+
+playlist2 <- read_csv("~/github/dsclub-spotify-recommender/data/Playlist 2 (make a queue for this playlist) - Sheet1.csv")
+
+no_songs = playlist1 %>% 
+  group_by(genre) %>% 
+  summarize(Num_of_songs = n())
+
+ggplot(data = no_songs, aes(x = genre, y= Num_of_songs), las=2) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
+  labs(x = 'Genre',
+       y = 'Number of Songs',
+       title = 'Total Number of Songs in Each Genre in Playlist 1',
+       caption = "Based on Tiffany's Playlist 1")
+```
+
+This chart displays the number of songs within each genre of the first playlist.  The first thing that I noticed when quickly glancing over this chart is one of the genres is listed as "NA" which I didn't originally notice when looking at the raw dataset.  The only reason I can think of for this labeling is that the program that converts all your playlist into a dataframe could not identify the genre for this one particular song, which happens to be "All in Time."
+
+In addition, it is clear that the genre with the most songs in this playlist is under the category of k-pop.
+
+*****
+
+```{r, echo=F, message=F, warning=F}
+playlist2 = playlist2 %>% 
+  rename(
+    enrgy = nrgy,
+    dance = dnce,
+    genre = 'top genre'
+  )
+
+no_songs2 = playlist2 %>% 
+  group_by(genre) %>% 
+  summarize(Num_of_songs = n())
+
+ggplot(data = no_songs2, aes(x = genre, y= Num_of_songs), las=2) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
+  labs(x = 'Genre',
+       y = 'Number of Songs',
+       title = 'Total Number of Songs in Each Genre in Playlist 2',
+       caption = "Based on Tiffany's Playlist 2")
+```
+
+The above chart shows the number of songs within each genre of the second playlist, the playlist that we are ordering based on the first playlist.  In comparison to the first playlist, there is not much difference in terms of the number of songs in the playlist as the first one has 55 songs while the second has 67 songs.  However, there are a lot more genres in this second playlist as this playlist has 30 genres while the first has 18 genres.  This shows that the second there is a wider variety of music in the second playlist.
+
+Another important piece of information that we can take away from these two charts is that k-pop was the most frequent genre in both the first and second playlist as there were over 15 k-pop songs in playlist 1 and 10 and playlist 2.  For this reason, we can assume that the two playlists are relatively similar as both of them have the most songs in the same genre: k-pop.  Therefore when ordering the second playlist, we can make the prediction that the k-pop songs will be at the top of the list as they will have the most similarity to the songs in the first playlist.
+
+*****
+
+## V: Analysis and Discussion
+
+*****
+
+## VI: Conclusion
+
+*****
+
+## VII: References
+1. http://organizeyourmusic.playlistmachinery.com/index.html#
+2. 
+
+*****
+
+## VIII: Appendix
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+
+```
+
+*****
+
+<center>
+```{r, echo=FALSE}
+library(icon)
+fa("globe", size = 5, color="green")
+```
+</center>
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
