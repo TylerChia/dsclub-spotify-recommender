@@ -31,7 +31,7 @@ Once again, through this project, our group would like to create somewhat of a r
 *****
 
 ## III: Data
-The datasets that we will be using for this project are two of Tiffany Yin's Spotify playlists.  We were able to obtain the data from a website known as Organizeyourmusic which is linked [here](http://organizeyourmusic.playlistmachinery.com/index.html#).  This website was created by Paul Lamere who build music recommenders at Spotify itself.  His twitter is linked [here](https://twitter.com/plamere). This specifc website was created on August 6, 2016 during The Science of Music Hackathon in NYC.  The website runs in conjunction with Spotify in order to give the user data on their music tastes and playlists.  After signing into your Spotify account on the website the user is able to get information on all their playlists.  Therefore for this project, we are using two of Tiffany's playlists that we titled playlist1 and playlist2 for simplicity.  The first dataset has 55 observations while the second has 67.  In addition, both datasets have 13 variables:
+The datasets that we will be using for this project are two of Tiffany Yin's Spotify playlists.  We were able to obtain the data from a website known as Organizeyourmusic which is linked [here](http://organizeyourmusic.playlistmachinery.com/index.html#).  This website was created by Paul Lamere who builds music recommenders at Spotify itself.  His twitter is linked [here](https://twitter.com/plamere). This specifc website was created on August 6, 2016 during The Science of Music Hackathon in NYC.  The website runs in conjunction with Spotify in order to give the user data on their music tastes and playlists.  After signing into your Spotify account on the website the user is able to get information on all their playlists.  Therefore for this project, we are using two of Tiffany's playlists that we titled playlist1 and playlist2 for simplicity.  The first dataset has 55 observations while the second has 67.  In addition, both datasets have 13 variables:
 
 - Title (title): the song name
 - Artist (artist): The music artist that the song belongs to, excluding features
@@ -109,6 +109,47 @@ Another important piece of information that we can take away from these two char
 
 *****
 
+The next thing that we decided to do in order to get a better view of the data was to organize the dataframe based on artist.  We grouped both the playlists based on artist in order to determine how many songs per each artist were in the playlists.  We then ordered them by which artists had the most songs on the playlist and displayed the top 5.
+
+```{r, echo=F, message=F, warning=F}
+topartists1 = playlist1 %>% 
+  group_by(artist) %>% 
+  summarise(Num_songs = n()) %>% 
+  arrange(-Num_songs) %>% 
+  head(5)
+
+knitr::kable(topartists1, caption = "Top 5 Artists in Playlist1", col.names = c("Artist","Number of Songs"), "simple", format.args = list(big.mark = ",", 
+  scientific = FALSE))
+```
+
+```{r, echo=F, message=F, warning=F}
+topartists2 = playlist2 %>% 
+  group_by(artist) %>% 
+  summarise(Num_songs = n()) %>% 
+  arrange(-Num_songs) %>% 
+  head(5)
+
+knitr::kable(topartists2, caption = "Top 5 Artists in Playlist2", col.names = c("Artist","Number of Songs"), "simple", format.args = list(big.mark = ",", 
+  scientific = FALSE))
+```
+
+As shown above, there is not much overlap between the top artists of both playlists as we do not see any of the top 5 artists in playlist one as top artists in playlist two.
+
+*****
+
+
+<center>
+![](../dsclub-spotify-recommender/img/distplot.png)
+</center>
+
+*****
+
+<center>
+![](../dsclub-spotify-recommender/img/histogram.png)
+</center>
+
+*****
+
 ## V: Analysis and Discussion
 
 *****
@@ -124,10 +165,50 @@ Another important piece of information that we can take away from these two char
 *****
 
 ## VIII: Appendix
-
+First half contains all the R code while everything in comments is code in Python that our group copied and pasted from another environment. All this code is our own work.
 ```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 
 ```
+
+
+```{r, echo=F}
+# import pandas as pd
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# 
+# f, axes = plt.subplots(2, 5, figsize=(12, 7), tight_layout = True)
+# plt.suptitle('Distplot for Numerical Variables in Playlist1', fontsize = 20)
+# sns.distplot(playlist1["bpm"] , color="skyblue", ax=axes[0, 0])
+# sns.distplot(playlist1["energy"] , color="olive", ax=axes[0, 1])
+# sns.distplot(playlist1["dance"] , color="gold", ax=axes[1, 0])
+# sns.distplot(playlist1["dB"] , color="teal", ax=axes[1, 1])
+# sns.distplot(playlist1["live"] , color="green", ax=axes[1, 2])
+# sns.distplot(playlist1["val"] , color="orange", ax=axes[0, 2])
+# sns.distplot(playlist1["dur"] , color="blue", ax=axes[0, 3])
+# sns.distplot(playlist1["acous"] , color="red", ax=axes[0, 4])
+# sns.distplot(playlist1["spch"] , color="purple", ax=axes[1, 3])
+# sns.distplot(playlist1["pop"] , color="yellow", ax=axes[1, 4])
+# plt.show()
+# plt.tight_layout()
+# 
+# fig, axes = plt.subplots(2, 5, figsize=(12, 7), tight_layout=True)
+# plt.suptitle('Histogram for Numerical Variables in Playlist1', fontsize = 20)
+# playlist1.hist('bpm', bins=10, ax=axes[0,0])
+# playlist1.hist('energy', bins=10, ax=axes[0,1])
+# playlist1.hist('dance', bins=10, ax=axes[0,2])
+# playlist1.hist('dB', bins=10, ax=axes[0,3])
+# playlist1.hist('live', bins=10, ax=axes[0,4])
+# playlist1.hist('val', bins=10, ax=axes[1,0])
+# playlist1.hist('dur', bins=10, ax=axes[1,1])
+# playlist1.hist('acous', bins=10, ax=axes[1,2])
+# playlist1.hist('spch', bins=10, ax=axes[1,3])
+# playlist1.hist('pop', bins=10, ax=axes[1,4])
+# plt.show()
+# plt.tight_layout()
+```
+
+
 
 *****
 
