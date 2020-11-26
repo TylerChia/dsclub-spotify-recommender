@@ -137,7 +137,6 @@ As shown above, there is not much overlap between the top artists of both playli
 
 *****
 
-
 <center>
 ![](../dsclub-spotify-recommender/img/distplot.png)
 </center>
@@ -152,6 +151,143 @@ As shown above, there is not much overlap between the top artists of both playli
 
 ## V: Analysis and Discussion
 
+```{r, echo=F, message=F, warning=F}
+avgbpm = mean(playlist1$bpm)
+avgenrgy = mean(playlist1$enrgy)
+avgdance = mean(playlist1$dance)
+avgdB = mean(playlist1$dB)
+avglive = mean(playlist1$live)
+avgval = mean(playlist1$val)
+avgdur = mean(playlist1$dur)
+avgacous = mean(playlist1$acous)
+avgspch = mean(playlist1$spch)
+avgpop = mean(playlist1$pop)
+
+playlist2a = playlist2
+
+playlist2a$bpmavg = avgbpm
+playlist2a$enrgyavg = avgenrgy
+playlist2a$danceavg = avgdance
+playlist2a$dBavg = avgdB
+playlist2a$liveavg = avglive
+playlist2a$valavg = avgval
+playlist2a$duravg = avgdur
+playlist2a$acousavg = avgacous
+playlist2a$spchavg = avgspch
+playlist2a$popavg = avgpop
+```
+
+```{r, echo=F, message=F, warning=F}
+playlist2a = playlist2a %>% 
+  mutate(bpmdiff = abs(bpm - bpmavg)) %>% 
+  mutate(enrgydiff = abs(enrgy - enrgyavg)) %>% 
+  mutate(dancediff = abs(dance - danceavg)) %>% 
+  mutate(dBdiff = abs(dB - dBavg)) %>% 
+  mutate(livediff = abs(live - liveavg)) %>% 
+  mutate(valdiff = abs(val - valavg)) %>% 
+  mutate(durdiff = abs(dur - duravg)) %>% 
+  mutate(acousdiff = abs(acous - acousavg)) %>% 
+  mutate(spchdiff = abs(spch - spchavg)) %>% 
+  mutate(popdiff = abs(pop - popavg))
+
+```
+
+```{r, echo=F, message=F, warning=F}
+playlist2a = playlist2a %>% 
+  mutate(totaldiff = bpmdiff + enrgydiff + dancediff + dBdiff + livediff + valdiff + durdiff + acousdiff + 
+           spchdiff + popdiff)
+
+arrangedplaylist2 = playlist2a %>% 
+  arrange(totaldiff) %>% 
+  select(title, artist, genre, totaldiff) %>% 
+  head(10)
+
+knitr::kable(arrangedplaylist2, caption = "Top 10 Playlist2 Songs Most Similar to Playlist1", col.names = c("Title","Artist","Genre","Error From Avg"), "simple", format.args = list(big.mark = ",", 
+  scientific = FALSE))
+```
+
+```{r, echo=F, message=F, warning=F}
+edmplaylist <- read_csv("~/github/dsclub-spotify-recommender/data/edmplaylist - Sheet1.csv")
+
+novplaylist <- read_csv("~/github/dsclub-spotify-recommender/data/novplaylist - Sheet1.csv")
+
+no_songs_edm = edmplaylist %>% 
+  group_by(genre) %>% 
+  summarize(Num_of_songs = n())
+
+ggplot(data = no_songs_edm, aes(x = genre, y= Num_of_songs), las=2) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
+  labs(x = 'Genre',
+       y = 'Number of Songs',
+       title = 'Total Number of Songs in Each Genre in EDM Playlist',
+       caption = "Based on EDM Playlist")
+```
+
+```{r, echo=F, message=F, warning=F}
+no_songs_nov = novplaylist %>% 
+  group_by(genre) %>% 
+  summarize(Num_of_songs = n())
+
+ggplot(data = no_songs_nov, aes(x = genre, y= Num_of_songs), las=2) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
+  labs(x = 'Genre',
+       y = 'Number of Songs',
+       title = 'Total Number of Songs in Each Genre in November Playlist',
+       caption = "Based on November Playlist")
+```
+
+```{r, echo=F, message=F, warning=F}
+avgedmbpm = mean(edmplaylist$bpm)
+avgedmenrgy = mean(edmplaylist$enrgy)
+avgedmdance = mean(edmplaylist$dance)
+avgedmdB = mean(edmplaylist$dB)
+avgedmlive = mean(edmplaylist$live)
+avgedmval = mean(edmplaylist$val)
+avgedmdur = mean(edmplaylist$dur)
+avgedmacous = mean(edmplaylist$acous)
+avgedmspch = mean(edmplaylist$spch)
+avgedmpop = mean(edmplaylist$pop)
+
+novplaylist1a = novplaylist
+
+novplaylist1a$bpmavg = avgedmbpm
+novplaylist1a$enrgyavg = avgedmenrgy
+novplaylist1a$danceavg = avgedmdance
+novplaylist1a$dBavg = avgedmdB
+novplaylist1a$liveavg = avgedmlive
+novplaylist1a$valavg = avgedmval
+novplaylist1a$duravg = avgedmdur
+novplaylist1a$acousavg = avgedmacous
+novplaylist1a$spchavg = avgedmspch
+novplaylist1a$popavg = avgedmpop
+
+novplaylist1a = novplaylist1a %>% 
+  mutate(bpmdiff = abs(bpm - bpmavg)) %>% 
+  mutate(enrgydiff = abs(enrgy - enrgyavg)) %>% 
+  mutate(dancediff = abs(dance - danceavg)) %>% 
+  mutate(dBdiff = abs(dB - dBavg)) %>% 
+  mutate(livediff = abs(live - liveavg)) %>% 
+  mutate(valdiff = abs(val - valavg)) %>% 
+  mutate(durdiff = abs(dur - duravg)) %>% 
+  mutate(acousdiff = abs(acous - acousavg)) %>% 
+  mutate(spchdiff = abs(spch - spchavg)) %>% 
+  mutate(popdiff = abs(pop - popavg))
+
+novplaylist1a = novplaylist1a %>% 
+  mutate(totaldiff = bpmdiff + enrgydiff + dancediff + dBdiff + livediff + valdiff + durdiff + acousdiff + 
+           spchdiff + popdiff)
+
+novplaylist1 = novplaylist1a %>% 
+  arrange(totaldiff) %>% 
+  select(title, artist, genre, totaldiff) %>% 
+  head(5)
+
+knitr::kable(novplaylist1, caption = "Top 5 NovPlaylist Songs Most Similar to EDM Playlist", col.names = c("Title","Artist","Genre","Error From Avg"), "simple", format.args = list(big.mark = ",", 
+  scientific = FALSE))
+```
+
 *****
 
 ## VI: Conclusion
@@ -160,12 +296,11 @@ As shown above, there is not much overlap between the top artists of both playli
 
 ## VII: References
 1. http://organizeyourmusic.playlistmachinery.com/index.html#
-2. 
 
 *****
 
 ## VIII: Appendix
-First half contains all the R code while everything in comments is code in Python that our group copied and pasted from another environment. All this code is our own work.
+First half contains all the R code while everything in comments is code in Python that our group wrote in another environment. All code is our own work.
 ```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 
 ```
