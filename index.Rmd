@@ -21,17 +21,17 @@ library(scales)
 ```
 
 ## I: Abstract
-Have you ever finished listening to a playlist on Spotify and had completely different, random, and unrelated songs begin playing in succession?  If not, have you ever finished listening to a playlist on Spotify and wonder what songs are similar to that playlist that you just finished?  Oftentimes, we find ourselves in a certain mood after listening to a specific type of music.  For example, after listening to a pop playlist, we may be in a good mood or feeling somewhat energetic.  For that reason, we would not want to start listening to slower paced music such as classical, shortly after finishing the pop playlist.  Our group exists to solve this problem by finding a way to order other playlists based on similarity to the first playlist so that we can be in one continuous state of mind.
+Have you ever finished listening to a playlist on Spotify and had completely different, random, and unrelated songs begin playing in succession?  If not, have you ever finished listening to a playlist on Spotify and wonder what songs are similar to the playlist that you just finished?  Oftentimes, we find ourselves in a certain mood after listening to a specific type of music.  For example, after listening to a pop playlist, we may be in a good mood or feeling somewhat energetic.  For that reason, we would not want to start listening to slower paced music such as classical, shortly after finishing the pop playlist.  Our group exists to solve this problem by finding a way to order other playlists based on similarity to the first playlist so that we can be in one continuous state of mind.
 
 *****
 
 ## II: Introduction
-Once again, through this project, our group would like to create somewhat of a recommender system that orders a second playlist based off of similarity to a first playlist.  We plan to go about doing this by first taking data from two playlists that one of our group members has on Spotify.  Then, we will do some introductory data analysis, to determine if the playlists have any similarities before ordering them.  We will then begin the process of trying to order a playlist in terms of similarity to the first.  One method that we will attempt is to average numerical variables from the songs first playlist as a way to categorize the first playlist as one "type" of music.  Next, we will find the error between the numerical values of songs in the second playlist and the average values of the first.  This will allow us to see which songs are similar to the first playlist in terms of those variables.  One big deciding factor for us is to choose which variables to use as we do not want to be too broad, but at the same time, we want to include all the necessary variables in order that we can determine what consititues similar or not.
+Once again, through this project, our group would like to create somewhat of a recommender system that orders a second playlist based off of similarity to a first playlist.  We plan to go about doing this by first taking data from two playlists that one of our group members has on Spotify.  Then, we will do some introductory data analysis to determine if the playlists have any similarities before ordering them.  We will then begin the process of trying to order a playlist in terms of similarity to the first.  One method that we will attempt is to average numerical variables from the songs in the first playlist as a way to categorize the first playlist as one "type" of music.  Next, we will find the error between the numerical values of songs in the second playlist and the average values of the first.  This will allow us to see which songs are similar to the first playlist in terms of those variables.  One big deciding factor for us is to choose which variables to use as we do not want our program to be too broad, but at the same time, we want to include all the necessary variables in order that we may determine what constitutes as similar or not.
 
 *****
 
 ## III: Data
-The datasets that we will be using for this project are two of Tiffany Yin's Spotify playlists.  We were able to obtain the data from a website known as Organizeyourmusic which is linked [here](http://organizeyourmusic.playlistmachinery.com/index.html#).  This website was created by Paul Lamere who builds music recommenders at Spotify itself.  His twitter is linked [here](https://twitter.com/plamere). This specifc website was created on August 6, 2016 during The Science of Music Hackathon in NYC.  The website runs in conjunction with Spotify in order to give the user data on their music tastes and playlists.  After signing into your Spotify account on the website the user is able to get information on all their playlists.  Therefore for this project, we are using two of Tiffany's playlists that we titled playlist1 and playlist2 for simplicity.  The first dataset has 55 observations while the second has 67.  In addition, both datasets have 13 variables:
+The datasets that we will be using for this project are two Spotify playlists from one of our group members.  We were able to obtain the data from a website known as Organizeyourmusic.com which is linked [here](http://organizeyourmusic.playlistmachinery.com/index.html#).  This website was created by Paul Lamere who builds music recommenders at Spotify.  His twitter is linked [here](https://twitter.com/plamere). This specifc website was created on August 6, 2016 during The Science of Music Hackathon in NYC.  The website runs in conjunction with Spotify in order to give the user data on their music tastes and playlists.  After signing into your Spotify account on the website, the user is able to get information on all their playlists.  For this project, we are using two playlists that we titled playlist1 and playlist2 for simplicity.  The first dataset has 55 observations while the second has 67.  In addition, both datasets have 13 variables:
 
 - Title (title): the song name
 - Artist (artist): The music artist that the song belongs to, excluding features
@@ -47,7 +47,7 @@ The datasets that we will be using for this project are two of Tiffany Yin's Spo
 - Speechiness (spch): The higher the value, the more spoken word the song contains
 - Popularity (pop): The higher the value, the more popular the song is
 
-A lot of these variables seem awfully objective and we are not completely sure how these are all measured, but the creator is a credible source so we are using his playlist program.
+A lot of these variables seem awfully subjective and we are not completely sure how these are all measured, but the creator is a credible source so we are using his playlist program.
 All the variables in this dataset will be useful for this project, especially the numerical ones where we can do most of our calculations to determine if a song is similar to the other playlist or not.  These numerical variables include BPM, energy, danceability, loudness, liveness, valence, duration, acousticness, speechiness, and popularity.  
 
 *****
@@ -65,7 +65,7 @@ no_songs = playlist1 %>%
   summarize(Num_of_songs = n())
 
 ggplot(data = no_songs, aes(x = genre, y= Num_of_songs), las=2) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", color='#2e4057', fill='#66a182') +
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   labs(x = 'Genre',
        y = 'Number of Songs',
@@ -74,7 +74,7 @@ ggplot(data = no_songs, aes(x = genre, y= Num_of_songs), las=2) +
 ```
 </center>
 
-This chart displays the number of songs within each genre of the first playlist.  The first thing that I noticed when quickly glancing over this chart is one of the genres is listed as "NA" which I didn't originally notice when looking at the raw dataset.  The only reason I can think of for this labeling is that the program that converts all your playlist into a dataframe could not identify the genre for this one particular song, which happens to be "All in Time."
+This chart displays the number of songs within each genre of the first playlist.  The first thing that we noticed when quickly glancing over this chart is one of the genres is listed as "NA" which we didn't originally notice when looking at the raw dataset.  The only reason I can think of for this labeling is that the program that converts all your playlist into a dataframe could not identify the genre for this one particular song, which happens to be "All in Time."
 
 In addition, it is clear that the genre with the most songs in this playlist is under the category of k-pop.
 
@@ -94,7 +94,7 @@ no_songs2 = playlist2 %>%
   summarize(Num_of_songs = n())
 
 ggplot(data = no_songs2, aes(x = genre, y= Num_of_songs), las=2) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", color='#2e4057', fill='#66a182') +
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   labs(x = 'Genre',
        y = 'Number of Songs',
@@ -103,13 +103,13 @@ ggplot(data = no_songs2, aes(x = genre, y= Num_of_songs), las=2) +
 ```
 </center>
 
-The above chart shows the number of songs within each genre of the second playlist, the playlist that we are ordering based on the first playlist.  In comparison to the first playlist, there is not much difference in terms of the number of songs in the playlist as the first one has 55 songs while the second has 67 songs.  However, there are a lot more genres in this second playlist as this playlist has 30 genres while the first has 18 genres.  This shows that the second there is a wider variety of music in the second playlist.
+The above chart shows the number of songs within each genre of the second playlist, the playlist that we are ordering based on the first playlist.  In comparison to the first playlist, there is not much difference in terms of the number of songs in the playlist as the first one has 55 songs while the second has 67 songs.  However, there is a wider variety of genres in this second playlist as this playlist has 30 genres while the first has 18 genres. 
 
-Another important piece of information that we can take away from these two charts is that k-pop was the most frequent genre in both the first and second playlist as there were over 15 k-pop songs in playlist 1 and 10 and playlist 2.  For this reason, we can assume that the two playlists are relatively similar as both of them have the most songs in the same genre: k-pop.  Therefore when ordering the second playlist, we can make the prediction that the k-pop songs will be at the top of the list as they will have the most similarity to the songs in the first playlist.
+Another important piece of information that we can take away from these two charts is that k-pop was the most frequent genre in both the first and second playlist as there were 17 k-pop songs in playlist 1 and 10 and playlist 2.  For this reason, we can assume that the two playlists are relatively similar as both of them have the most songs in the same genre: k-pop.  Therefore when ordering the second playlist, we can make the prediction that the k-pop songs will be at the top of the list as they will have the most similarity to the songs in the first playlist.
 
 *****
 
-The next thing that we decided to do in order to get a better view of the data was to organize the dataframe based on artist.  We grouped both the playlists based on artist in order to determine how many songs per each artist were in the playlists.  We then ordered them by which artists had the most songs on the playlist and displayed the top 5.
+The next thing that we decided to do in order to get a better view of the data was to organize the dataframe based on artist.  We grouped both the playlists based on artist in order to determine how many songs per artist were in the playlists.  We then ordered them by which artists had the most songs on the playlist and displayed the top 5.
 
 ```{r, echo=F, message=F, warning=F}
 topartists1 = playlist1 %>% 
@@ -155,7 +155,7 @@ Above are two different graphs that we coded in python using seaborn and matplot
 
 ### V.I: Ordering Playlist: Attempt 1
 
-Moving onto the writing the program that sorts the second playlist based on the first playlist, we first want to average out all the values for the numerical values in the first playlist.  We decided upon an average as we thought that this would be the best method for finding the values that best describe the playlist as a whole.  While using a median is also a viable option, we felt as if there weren't enough songs in this first playlist for a median to be truly effective.  Once we took the average of all the variables in the first playlist, we added them to the second dataset as columns so that later we could mutate the dataset to find distances from the average.
+Moving onto writing the program that sorts the second playlist based on the first playlist, we first want to average out all the values for the numerical variables in the first playlist.  We decided upon an average as we thought that this would be the best method for finding the values that best describe the playlist as a whole.  While using a median is also a viable option, we felt as if there weren't enough songs in this first playlist for a median to be truly effective.  Once we took the average of all the variables in the first playlist, we added them to the second dataset as columns so that later we could mutate the dataset to find distances from the average.
 
 ```{r, echo=F, message=F, warning=F}
 avgbpm = mean(playlist1$bpm)
@@ -219,13 +219,13 @@ knitr::kable(arrangedplaylist2, caption = "Reordered Playlist2 Using All Numeric
 
 ### V.II: Testing For Accuracy
 
-As for testing for the accuracy of the results of our program, it is quite tough as similarity of songs can be a rather subjective topic.  Simply stated, one might listen to our reordered playlist two and think the first few songs sound nothing like playlist one, but someone else might think that they sound similar.  For this reason, we decided to test our program using a baseline playlist that has less variability in it.  Now that I'm thinking about it, I am not completely sure why we did not do this in the first place.  
+As for testing the accuracy of the results of our program, it is quite difficult as the similarity of songs can be a rather subjective topic.  Simply stated, one might listen to our reordered playlist and think the first few songs sound nothing like playlist one, but someone else might think that they sound similar.  For this reason, we decided to test our program using a baseline playlist that has less variability in it.  Now that I'm thinking about it, I am not completely sure why we did not do this in the first place.  
 
 Our new playlist one is a playlist that contains purely EDM.  We renamed this dataset "edmplaylist" and it contains 83 songs that are all either of genre "EDM" or a subgenre of EDM.  For reference, EDM is an acronym for Electronic Dance Music and is known to be faster in terms of pace and contains less lyrics.  For that reason, we expect a higher average BPM, dance, and energy as well as a lower average speech count.  Since all the songs are similar, we would also expect the second playlist to be reordered with EDM and EDM-like songs at the top.
 
-For our test playlist, we decided to use Tyler's November playlist which contains 18 songs.  6 of which are EDM and the rest being a mixture of rap and hip hop.  Using a shorter playlist for the second playlist will allow us to see accuracy better.
+For our test playlist, we decided to use one of our group member's November playlist which contains 18 songs, 6 of which are EDM and the rest being a mixture of rap and hip hop.  Using a shorter playlist for the second playlist will allow us to test for accuracy better.
 
-We started by graphing a histogram based on the number of songs in each genre for each playlist.  Below, we can see that the first playlist is all EDM and subgenre of EDM such as dance pop, dubstep, and big room.
+We started by graphing a histogram based on the number of songs in each genre for each playlist.  Below, we can see that the first playlist is all EDM and subgenres of EDM such as dance pop, dubstep, and big room.
 
 <center>
 ```{r, echo=F, message=F, warning=F}
@@ -238,7 +238,7 @@ no_songs_edm = edmplaylist %>%
   summarize(Num_of_songs = n())
 
 ggplot(data = no_songs_edm, aes(x = genre, y= Num_of_songs), las=2) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", color='#2e4057', fill='#66a182') +
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   labs(x = 'Genre',
        y = 'Number of Songs',
@@ -256,7 +256,7 @@ no_songs_nov = novplaylist %>%
   summarize(Num_of_songs = n())
 
 ggplot(data = no_songs_nov, aes(x = genre, y= Num_of_songs), las=2) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", color='#2e4057', fill='#66a182') +
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   labs(x = 'Genre',
        y = 'Number of Songs',
@@ -265,7 +265,7 @@ ggplot(data = no_songs_nov, aes(x = genre, y= Num_of_songs), las=2) +
 ```
 </center>
 
-We then ran our program again, using the EDM playlist averages and the November playlist to get the November playlist reordered below.  We decided to show all the songs this time as the playlist is rather short to begin with.
+We then ran our program again, using the EDM playlist averages to get the November playlist reordered below.  We decided to show all the songs this time as the playlist is rather short to begin with.
 
 ```{r, echo=F, message=F, warning=F}
 avgedmbpm = mean(edmplaylist$bpm)
@@ -316,9 +316,9 @@ knitr::kable(novplaylist1, caption = "Reordered Nov. Playlist Using All Variable
   scientific = FALSE))
 ```
 
-As seen above, most of the EDM songs are towards the top of the playlist with all 6 of them being in the top 9 songs in the reordered playlist.  While this is rather accurate in our opinion, we felt as if we could do a better job in terms of our program's accuracy as there were still a couple of hip hop songs that were considered more similar than certain EDM songs.
+As seen above, most of the EDM songs are towards the top of the playlist with all 6 of them being in the top 9 songs in the reordered playlist.  While this is rather accurate in our opinion, we felt as if we could do a better job in terms of our program's accuracy as there were still a couple of hip hop songs that were classified as more similar than some EDM songs.
 
-Our next step in attempt to make our program more accurate was to limit the number of variables that we were using that could throw the distance from the average off.  For example, one song might be very similar to the average of the other playlist, but the fact that the song is 7 minutes long would make the margin of error extremely large, thus leaving it towards the bottom of the reordered playlist.  
+Our next step in attempting to make our program more accurate was to limit the number of variables that we were using.  Using more variables could throw the distance from the average off.  For example, one song might be very similar to the average of the other playlist, but the fact that the song is 10 minutes long would make the margin of error extremely large, thus leaving it towards the bottom of the reordered playlist.  
 
 For this reason, we decided to remove the variables **loudness, duration, and popularity** due to the fact that we felt as if these variables did not do a good job of telling if a song was similar to the playlist or not.
 
@@ -335,7 +335,7 @@ knitr::kable(novplaylist2, caption = "Reordered Nov. Playlist Using Limited Vari
   scientific = FALSE))
 ```
 
-After taking our those variables, we reran the program on the data once more and our results are shown above.  This time, all 6 of the EDM related songs were in the top 7 most similar songs to the EDM playlist.  In addition, the only non-EDM song in the top 7 is a hip hop song produced by Marshmello who is technically an EDM producer so it would make sense that the song has some similarity to the EDM playlist.  
+After taking out those variables, we reran the program on the data once more and our results are shown above.  This time, all 6 of the EDM related songs were in the top 7 most similar songs to the EDM playlist.  In addition, the only non-EDM song in the top 7 is a hip hop song produced by Marshmello who is technically an EDM producer so it would make sense that the song has some similarity to the EDM playlist.  
 
 **This method seems as if it is a more accurate way of reordering playlists based on similarity to another one.**  
 
@@ -359,11 +359,12 @@ knitr::kable(arrangedplaylist3, caption = "Reordered Playlist2 Using Limited Var
   scientific = FALSE))
 ```
 
-Above are the top 10 songs in playlist2 that are considered most similar to the average of playlist1 according to our program that uses the variables of BPM, energy, danceability, liveness, valence, acousticness, and speechiness.  We can assume that this is pretty accurate based on our previous test of the program.  
+Above are the top 10 songs in playlist2 that are considered to be most similar to the average of playlist1 according to our program that uses the variables of BPM, energy, danceability, liveness, valence, acousticness, and speechiness.  We can assume that this is pretty accurate based on our previous test of the program.  
 
 *****
 
 ## VI: Conclusion
+One of the main problems that we had with this project is that it is rather difficult to test for accuracy in terms of how similar a song is to another playlist.  Similarity in this case is rather subjective as one person might think they sound the same while another does not.  Looking back on our approach to this project, our group probably should not have used two playlists that had such a wide variety of genres as our baseline playlists.  Because of this, we had no idea how accurate the reordered playlist was in comparison to the first playlist.  With that being said, this forced us to test our program by using other playlists, one of which containing songs of only one genre.  Using a playlist of only one genre allowed us to test which variables would make songs of that same genre to have a lower margin of error, thus making them higher in the reordered playlist.  In the end, we decided that using the variables BPM, energy, danceability, liveness, valence, acousticness, and speechiness made our program the most accurate in terms of ordering the playlist based on similarity to the other one.  On a side note, this project also required us to trust the data that was pulled from the playlists.  For example, how does one determine a numerical value for the danceability of a song?  That sounds rather subjective as well.  Lastly, our group has a few ideas of how we could possibly make our program more accurate.  One thing we can do is use a median instead of an average as a way to get collective values for the entire baseline playlist.  Another direction we could take is running more tests on various playlists and using different combinations of variables to see if we could make it more accurate.  All in all, we managed to complete our goal of reordering a playlist based on similarity to another playlist.  If you are ever really enjoying a playlist and want to see which of your own songs are similar to it, we can easily help.
 
 *****
 
@@ -373,7 +374,7 @@ Above are the top 10 songs in playlist2 that are considered most similar to the 
 *****
 
 ## VIII: Appendix
-First half contains all the R code while everything in comments is code in Python that our group wrote in another environment. All code is our own work.
+First half contains all the R code while everything in comments is Python code that our group wrote in another environment. All code is our own work.
 ```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 
 ```
