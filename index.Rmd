@@ -69,8 +69,8 @@ ggplot(data = no_songs, aes(x = genre, y= Num_of_songs), las=2) +
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   labs(x = 'Genre',
        y = 'Number of Songs',
-       title = 'Total Number of Songs in Each Genre in Playlist 1',
-       caption = "Based on Tiffany's Playlist 1")
+       title = 'Total Number of Songs by Genre in Playlist 1',
+       caption = "Based on Playlist 1")
 ```
 </center>
 
@@ -98,8 +98,8 @@ ggplot(data = no_songs2, aes(x = genre, y= Num_of_songs), las=2) +
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   labs(x = 'Genre',
        y = 'Number of Songs',
-       title = 'Total Number of Songs in Each Genre in Playlist 2',
-       caption = "Based on Tiffany's Playlist 2")
+       title = 'Total Number of Songs by Genre in Playlist 2',
+       caption = "Based on Playlist 2")
 ```
 </center>
 
@@ -147,9 +147,15 @@ As shown above, there is not much overlap between the top artists of both playli
 ![](../dsclub-spotify-recommender/img/histogram.png)
 </center>
 
+Above are two different graphs that we coded in python using seaborn and matplotlib.  One is a distplot and the other is a histogram, showing all ten numerical variables in the dataset.  These graphs give us a better idea of where the average or median will be in relation to each of these variables.
+
 *****
 
 ## V: Analysis and Discussion
+
+### V.I: Ordering Playlist: Attempt 1
+
+Moving onto the writing the program that sorts the second playlist based on the first playlist, we first want to average out all the values for the numerical values in the first playlist.  We decided upon an average as we thought that this would be the best method for finding the values that best describe the playlist as a whole.  While using a median is also a viable option, we felt as if there weren't enough songs in this first playlist for a median to be truly effective.  Once we took the average of all the variables in the first playlist, we added them to the second dataset as columns so that later we could mutate the dataset to find distances from the average.
 
 ```{r, echo=F, message=F, warning=F}
 avgbpm = mean(playlist1$bpm)
@@ -177,6 +183,8 @@ playlist2a$spchavg = avgspch
 playlist2a$popavg = avgpop
 ```
 
+Next, we took the numerical values from the second playlist and found the difference between those values and the average values from the first playlist.  Taking the absolute value of that difference gives us the distance from the average of the first playlist.  
+
 ```{r, echo=F, message=F, warning=F}
 playlist2a = playlist2a %>% 
   mutate(bpmdiff = abs(bpm - bpmavg)) %>% 
@@ -189,8 +197,9 @@ playlist2a = playlist2a %>%
   mutate(acousdiff = abs(acous - acousavg)) %>% 
   mutate(spchdiff = abs(spch - spchavg)) %>% 
   mutate(popdiff = abs(pop - popavg))
-
 ```
+
+Finally, mutating the dataset once more by adding up all ten distances from the averages of the first playlist gives us the total error/distance between each song in the second playlist and the average from the first playlist.  Ordering the playlist in ascending order based on the error gives us the second playlist reordered based on similarity to the first.  The chart below shows the top ten songs from the second playlist that are the most similar to the first based on the ten numerical variables in the dataset.
 
 ```{r, echo=F, message=F, warning=F}
 playlist2a = playlist2a %>% 
@@ -202,10 +211,23 @@ arrangedplaylist2 = playlist2a %>%
   select(title, artist, genre, totaldiff) %>% 
   head(10)
 
-knitr::kable(arrangedplaylist2, caption = "Top 10 Playlist2 Songs Most Similar to Playlist1", col.names = c("Title","Artist","Genre","Error From Avg"), "simple", format.args = list(big.mark = ",", 
+knitr::kable(arrangedplaylist2, caption = "Reordered Playlist2 Using All Numerical Variables", col.names = c("Title","Artist","Genre","Error From Avg"), "simple", format.args = list(big.mark = ",", 
   scientific = FALSE))
 ```
 
+*****
+
+### V.II: Testing For Accuracy
+
+As for testing for the accuracy of the results of our program, it is quite tough as similarity of songs can be a rather subjective topic.  Simply stated, one might listen to our reordered playlist two and think the first few songs sound nothing like playlist one, but someone else might think that they sound similar.  For this reason, we decided to test our program using a baseline playlist that has less variability in it.  Now that I'm thinking about it, I am not completely sure why we did not do this in the first place.  
+
+Our new playlist one is a playlist that contains purely EDM.  We renamed this dataset "edmplaylist" and it contains 83 songs that are all either of genre "EDM" or a subgenre of EDM.  For reference, EDM is an acronym for Electronic Dance Music and is known to be faster in terms of pace and contains less lyrics.  For that reason, we expect a higher average BPM, dance, and energy as well as a lower average speech count.  Since all the songs are similar, we would also expect the second playlist to be reordered with EDM and EDM-like songs at the top.
+
+For our test playlist, we decided to use Tyler's November playlist which contains 18 songs.  6 of which are EDM and the rest being a mixture of rap and hip hop.  Using a shorter playlist for the second playlist will allow us to see accuracy better.
+
+We started by graphing a histogram based on the number of songs in each genre for each playlist.  Below, we can see that the first playlist is all EDM and subgenre of EDM such as dance pop, dubstep, and big room.
+
+<center>
 ```{r, echo=F, message=F, warning=F}
 edmplaylist <- read_csv("~/github/dsclub-spotify-recommender/data/edmplaylist - Sheet1.csv")
 
@@ -220,10 +242,14 @@ ggplot(data = no_songs_edm, aes(x = genre, y= Num_of_songs), las=2) +
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   labs(x = 'Genre',
        y = 'Number of Songs',
-       title = 'Total Number of Songs in Each Genre in EDM Playlist',
+       title = 'Total Number of Songs by Genre in EDM Playlist',
        caption = "Based on EDM Playlist")
 ```
+</center>
 
+The histogram for the number of songs by genre for the November playlist is shown below.  There are 2 EDM, 1 dance pop, one chillstep, 1 brostep and 1 big room song, summed up to a total of 6 EDM related songs while the rest are hip hop or rap related.  Once again, by reordering this playlist based on the EDM playlist, we would expect to see the EDM related songs at the top of the list.
+
+<center>
 ```{r, echo=F, message=F, warning=F}
 no_songs_nov = novplaylist %>% 
   group_by(genre) %>% 
@@ -234,9 +260,12 @@ ggplot(data = no_songs_nov, aes(x = genre, y= Num_of_songs), las=2) +
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   labs(x = 'Genre',
        y = 'Number of Songs',
-       title = 'Total Number of Songs in Each Genre in November Playlist',
+       title = 'Total Number of Songs by Genre in November Playlist',
        caption = "Based on November Playlist")
 ```
+</center>
+
+We then ran our program again, using the EDM playlist averages and the November playlist to get the November playlist reordered below.  We decided to show all the songs this time as the playlist is rather short to begin with.
 
 ```{r, echo=F, message=F, warning=F}
 avgedmbpm = mean(edmplaylist$bpm)
@@ -281,12 +310,56 @@ novplaylist1a = novplaylist1a %>%
 
 novplaylist1 = novplaylist1a %>% 
   arrange(totaldiff) %>% 
-  select(title, artist, genre, totaldiff) %>% 
-  head(5)
+  select(title, artist, genre, totaldiff) 
 
-knitr::kable(novplaylist1, caption = "Top 5 NovPlaylist Songs Most Similar to EDM Playlist", col.names = c("Title","Artist","Genre","Error From Avg"), "simple", format.args = list(big.mark = ",", 
+knitr::kable(novplaylist1, caption = "Reordered Nov. Playlist Using All Variables", col.names = c("Title","Artist","Genre","Error From Avg"), "simple", format.args = list(big.mark = ",", 
   scientific = FALSE))
 ```
+
+As seen above, most of the EDM songs are towards the top of the playlist with all 6 of them being in the top 9 songs in the reordered playlist.  While this is rather accurate in our opinion, we felt as if we could do a better job in terms of our program's accuracy as there were still a couple of hip hop songs that were considered more similar than certain EDM songs.
+
+Our next step in attempt to make our program more accurate was to limit the number of variables that we were using that could throw the distance from the average off.  For example, one song might be very similar to the average of the other playlist, but the fact that the song is 7 minutes long would make the margin of error extremely large, thus leaving it towards the bottom of the reordered playlist.  
+
+For this reason, we decided to remove the variables **loudness, duration, and popularity** due to the fact that we felt as if these variables did not do a good job of telling if a song was similar to the playlist or not.
+
+```{r, echo=F, message=F, warning=F}
+novplaylist1a = novplaylist1a %>% 
+  mutate(totaldiff1 = bpmdiff + enrgydiff + dancediff + livediff + valdiff + acousdiff + 
+           spchdiff)
+
+novplaylist2 = novplaylist1a %>% 
+  arrange(totaldiff1) %>% 
+  select(title, artist, genre, totaldiff1) 
+
+knitr::kable(novplaylist2, caption = "Reordered Nov. Playlist Using Limited Variables", col.names = c("Title","Artist","Genre","Error From Avg"), "simple", format.args = list(big.mark = ",", 
+  scientific = FALSE))
+```
+
+After taking our those variables, we reran the program on the data once more and our results are shown above.  This time, all 6 of the EDM related songs were in the top 7 most similar songs to the EDM playlist.  In addition, the only non-EDM song in the top 7 is a hip hop song produced by Marshmello who is technically an EDM producer so it would make sense that the song has some similarity to the EDM playlist.  
+
+**This method seems as if it is a more accurate way of reordering playlists based on similarity to another one.**  
+
+*****
+
+### V.III: Reordering Playlist: Attempt 2
+
+We will now go back to our original two playlists and run the limited variables program on them to reorder the second playlist at a higher level of accuracy this time.
+
+```{r, echo=F, message=F, warning=F}
+playlist2a = playlist2a %>% 
+  mutate(totaldiff1 = bpmdiff + enrgydiff + dancediff + livediff + valdiff + acousdiff + 
+           spchdiff)
+
+arrangedplaylist3 = playlist2a %>% 
+  arrange(totaldiff1) %>% 
+  select(title, artist, genre, totaldiff1) %>% 
+  head(10)
+
+knitr::kable(arrangedplaylist3, caption = "Reordered Playlist2 Using Limited Variables", col.names = c("Title","Artist","Genre","Error From Avg"), "simple", format.args = list(big.mark = ",", 
+  scientific = FALSE))
+```
+
+Above are the top 10 songs in playlist2 that are considered most similar to the average of playlist1 according to our program that uses the variables of BPM, energy, danceability, liveness, valence, acousticness, and speechiness.  We can assume that this is pretty accurate based on our previous test of the program.  
 
 *****
 
